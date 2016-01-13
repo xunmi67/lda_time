@@ -50,6 +50,32 @@ class lda():
                     k_v_mat[z_i][w_d[i]] += 1
                     m_k_mat[d][z_i] += 1
 
+        # it should come to stable state,state sample, and calculate theta and phi
+        self.phi = np.zeros((self.n_topics,V))
+        self.theta = np.zeros((D,self.n_topics))
+        stable_times = self.n_topics*self.MAX_LEN_OF_DOC*20
+        for sample_time in range(stable_times):
+            for d in D:
+                w_d = X.indices[X.indptr[d],X.indptr[d+1]]
+                z_d = z_vectors[d]
+                for i in range(w_d):
+                    k_v_mat[z_d[i]][w_d[i]] -= 1
+                    m_k_mat[d][z_d[i]] -= 1
+                    # cal sample probability Q
+                    Q = []
+                    z_i = i
+                    k_v_mat[z_i][w_d[i]] += 1
+                    m_k_mat[d][z_i] += 1
+            self.phi += [[(k_v_mat[k][t]+self.beta)/(sum(k_v_mat[k,:])+self.beta*V) for t in range(V)] \
+                    for k in range(self.n_topics)]
+            self.theta += [ [ (m_k_mat[m][k]+self.alfa)/(sum(m_k_mat[m,:])) for k in range(self.n_topics)]\
+                    for m in range(D)]
+        self.phi /= stable_times
+        self.theta /= stable_times
+
+
+
+
 
 
 
