@@ -1,23 +1,24 @@
-import numpy as np
+import random
+import math
 
 
-class GibbsSampler:
-
+def sampler(Q):
     """
-    gibbs_sampler generator
+    gen a sample
+    :return: float number
     """
-    def __init__(self, Q):
-        """
-        sampler generate sample from transition distribution Q,
-        Q[0] represent transfer probability to state 0
-        :param Q: transition distribution matrix,numpy array
-        :return: None
-        """
-        self.Q = Q
+    acc_Q = Q[:]
+    for i in xrange(1,len(acc_Q)):
+        acc_Q[i] += acc_Q[i-1]
+    assert math.fabs(acc_Q[-1] - 1.0) < 0.0001
+    rd = random.random()
+    for i in xrange(len(acc_Q)):
+        if acc_Q[i] > rd:
+            return i
+    # this code should never execute
+    assert 1 > 2
+    pass
 
-    def sample(self):
-        """
-        gen a sample
-        :return: float number
-        """
-        pass
+if __name__ == "__main__":
+    Q = [0.1,0.1,0.6,0.1,0.1]
+    print([sampler(Q) for i in xrange(100)])
